@@ -1,7 +1,7 @@
 <?php
 namespace Choco;
-use Choco\Yaml;
-require_once __DIR__ . '/../lib/choco/orm.php';
+use Choco\Yaml;-
+require_once __DIR__ . '/../orm.php';
 
 class Terminal {
 	public static function start($argv) {
@@ -45,35 +45,35 @@ class Terminal {
 		echo "error: no se especificó una operación (utilice -h para ayuda)\n";
 	}
 	private static function insert() {
-		if (is_file(__DIR__ . '/../choco.yml'))
-			$models = Yaml::read(__DIR__ . '/../choco.yml');
+		if (is_file(__DIR__ . '/../../../../choco.yml'))
+			$models = Yaml::read(__DIR__ . '/../../../../choco.yml');
 		else {
 			$models['config'] = __DIR__ . '/config';
 			$models['models'] = __DIR__ . '/app/models';;
 		}
-
-		Factory::sql(__DIR__ . '/../' . $models['config']);
+		
+		Factory::sql(__DIR__ . '/../../../../' . $models['config']);
 	}
 	private static function sql() {
-		if (is_file(__DIR__ . '/../choco.yml'))
-			$models = Yaml::read(__DIR__ . '/../choco.yml');
+		if (is_file(__DIR__ . '/../../../../choco.yml'))
+			$models = Yaml::read(__DIR__ . '/../../../../choco.yml');
 		else {
 			$models['config'] = __DIR__ . '/config';
 			$models['models'] = __DIR__ . '/app/models';;
 		}
-
-		Factory::gen_sql(__DIR__ . '/../' . $models['config']);
+		
+		Factory::gen_sql(__DIR__ . '/../../../../' . $models['config']);
 	}
 	private static function model() {
-		if (is_file(__DIR__ . '/../choco.yml'))
-			$models = Yaml::read(__DIR__ . '/../choco.yml');
+		if (is_file(__DIR__ . '/../../../../choco.yml'))
+			$models = Yaml::read(__DIR__ . '/../../../../choco.yml');
 		else {
 			$models['config'] = __DIR__ . '/config';
-			$models['models'] = __DIR__ . '/app/models';;
+			$models['models'] = __DIR__ . '/app/models';
 		}
 
 		// database
-		$path = __DIR__ . '/../' . $models['config'] . '/database/'; 
+		$path = __DIR__ . '/../../../../' . $models['config'] . '/database/'; 
 		$filenames = scandir($path);
 		$num = count($filenames);
 		for ($i = 2; $i < $num; $i++) { 
@@ -82,7 +82,7 @@ class Terminal {
 		}
 
 		// entities
-		$path = __DIR__ . '/../' . $models['config'] . '/entities/'; 
+		$path = __DIR__ . '/../../../../' . $models['config'] . '/entities/'; 
 		$filenames = scandir($path);
 		$num = count($filenames);
 		for ($i = 2; $i < $num; $i++) { 

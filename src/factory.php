@@ -96,7 +96,7 @@ class Factory {
 		$var = $var . ' $num_entities = ' . $num_values . ';';
 		$activerecord = $save . $delete . /*$select . */$find;
 		// file_exists()
-		chdir(__DIR__ . '/../../../');
+		chdir(__DIR__ . '/../../../../');
 		if (is_dir('app/'))
 			chdir('app/');
 		else {
@@ -140,7 +140,7 @@ class Factory {
 			$file = trim($file, ', ');
 			$file = $file . ";\n}";
 
-			chdir(__DIR__ . '/../../../');
+			chdir(__DIR__ . '/../../../../');
 
 
 			if (is_dir('app/'))
@@ -177,11 +177,13 @@ class Factory {
 		foreach (Self::$models as $key => $value) {
 			$file = $file . 'require_once \'' . $value . '\'' . ";\n";
 		}
-		chdir(__DIR__ . '/../../../');
-		if (is_dir('config/'))
+		chdir(__DIR__ . '/../../../../');
+		if (is_dir('config/')) 
 			chdir('config/');
-		else
+		else {
 			mkdir('config/');
+			chdir('config/');
+		}
 
 		if (file_exists('autoloader.php'))
 			unlink('autoloader.php');
@@ -327,14 +329,13 @@ class Factory {
 		} catch(PDOException $e) {
 			echo "error: " . $e->getMessage();
 		}
-		$out = $delete_group . $sql_group;
-		$out = $out . $fk . $fill;
+		//$out = $delete_group . $sql_group;
+		//$out = $out . $fk . $fill;
 
 
 		
 	}
 	public static function gen_sql($config) {
-
 		// database
 		$path = $config . '/database/'; 
 		$filenames = scandir($path);
@@ -448,8 +449,8 @@ class Factory {
 		$out = $out . $fk . $fill;
 
 
-		chdir(__DIR__ . '/../../../');
-
+		chdir(__DIR__ . '/../../../../');
+		echo $out;
 		if (file_exists('query.sql'))
 			unlink('query.sql');
 		$file_read = fopen('query.sql', 'c');
