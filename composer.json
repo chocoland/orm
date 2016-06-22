@@ -15,5 +15,8 @@
     ],
     "autoload": {
         "psr-4": { "Chocoland\\": "" }
+    },
+    "require": {
+        "symfony/yaml": "*"
     }
 }
