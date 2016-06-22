@@ -1,0 +1,17 @@
+{
+    "name": "chocoland/orm",
+    "type": "library",
+    "description": "A small and simple ORM for PHP",
+    "keywords": ["orm", "chocoland", "framework", "autogenerator"],
+    "license": " GPL-3.0+",
+    "authors": [
+        {
+            "name": "Jeferson De Freitas",
+            "email": "jdefreitaspinto@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Chocoland\\": "" }
+    },
+    "minimum-stability": "dev"
+}
