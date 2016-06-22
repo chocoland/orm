@@ -1,6 +1,6 @@
 <?php
 namespace Choco;
-use Choco\Yaml;-
+use Choco\Yaml;
 require_once __DIR__ . '/../orm.php';
 
 class Terminal {
