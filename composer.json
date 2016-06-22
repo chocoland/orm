@@ -10,8 +10,10 @@
             "email": "jdefreitaspinto@gmail.com"
         }
     ],
+    "bin": [
+        "bin/orm"
+    ],
     "autoload": {
         "psr-4": { "Chocoland\\": "" }
-    },
-    "minimum-stability": "dev"
+    }
 }
