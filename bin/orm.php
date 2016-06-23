@@ -23,8 +23,8 @@ class Terminal {
 					Self::model();
 					break;
 
-				case 'reverse':
-					Self::reverse();
+				case 'drop':
+					Self::drop();
 					break;
 
 				case '--help':
@@ -93,8 +93,15 @@ class Terminal {
 		// autoloader
 		Factory::autoloader();
 	}
-	private static function reverse() {
-		echo "reverse\n";
+	private static function drop() {
+		if (is_file(__DIR__ . '/../../../../choco.yml'))
+			$models = Yaml::read(__DIR__ . '/../../../../choco.yml');
+		else {
+			$models['config'] = __DIR__ . '/config';
+			$models['models'] = __DIR__ . '/app/models';;
+		}
+		
+		Factory::drop(__DIR__ . '/../../../../' . $models['config']);
 	}
 	private static function help() {
 		echo "operaciones:\n";
@@ -102,7 +109,7 @@ class Terminal {
 		echo "operaciones:\n";
 		echo "    choco-orm insert\n";
 		echo "    choco-orm model\n";
-		echo "    choco-orm reverse\n";
+		echo "    choco-orm drop\n";
 	}
 	private static function default($argv) {
 		echo "choco-orm: " . $argv[1] . " es una opción inválida\n";

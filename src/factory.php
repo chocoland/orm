@@ -7,17 +7,15 @@ class Factory {
 		$var = "\tprotected ";
 		$num_values = 0;
 		$functions = '';
-		//$map = '$map = [';
 		$model = Yaml::read($file);
 		$start = '';
 		$function = '';
-		// active record
 		$save = '';
 		$delete = '';
 		$find = '';
-		//$select = '';
 		$find_one = '';
-		$find_array = '';
+		$find_array_top = '';
+		$find_array_down = '';
 		$name_entities = '';
 		foreach($model as $db=>$entities) {
 			$var = $var . '$db = \'' . $db . '\', ';
@@ -30,18 +28,12 @@ class Factory {
 				$delete = $delete . "\n\tpublic function delete" . '($where)' . " {\n";
 				$delete = $delete . "\t\t" . '$this->query("DELETE FROM ' . $db . '.' . $name_entities . ' WHERE $where;");';
 				$delete = $delete . "\n\t}\n";
-
-				//$select = $select . "\n\tpublic function select" . '($select)' . " {\n";
-				//$select = $select . "\t\t" . '$this->__select = $select || \'*\';';
-				//$select = $select . "\n\t}\n";
-
 				$find = $find . "\n\tpublic function find" . '($where)' . " {\n";
 				$find = $find . "\t\t" . '$query = $this->query("SELECT $this->__select FROM ' . $db . '.' . $name_entities . ' WHERE $where;");' . "\n";
 				$find = $find . "\t\t" . '$query = $query->fetchAll(PDO::FETCH_ASSOC);' . "\n";
 				$find = $find . "\t\t" . '$num = count($query);' . "\n";
 				$find = $find . "\t\t" . 'if ($num == 1) {' . "\n";
 				$find = $find . "\t\t\t" . '$query = $query[0];' . "\n";
-				//$this->nombres = $query["nombres"];
 				$function = $function . "\n\tpublic function id() {\n";
 				$function = $function . "\t\t" . 'return $this->__id' . ";\n";
 				$function = $function . "\t}\n";
@@ -50,7 +42,6 @@ class Factory {
 				foreach ($values as $name_value => $property) {
 					$num_values = $num_values + 1;
 					$var = $var . '$__' . $name_value . " = NULL, ";
-					//$map = $map . '\'' . $name_value . '\', ';
 					$value = '';
 					$function = $function . "\n\tpublic function " . $name_value . '($v = NULL) ' . "{\n";
 					$function = $function . "\t\t" . 'if ($v != NULL) ' . "\n";
@@ -62,31 +53,14 @@ class Factory {
 					$save = $save . "\"'\" . " . '$this->__' . $name_value . " . \"', \" . ";
 					
 					$find_one = $find_one . "\t\t\t" . '$this->__' . $name_value . ' = $query[\'' . $name_value . "'];\n";
-
-					//$find_array = $find_one . "\t\t\t" . '$this->__' . $name_value . ' = $query[\'' . $name_value . "'];\n";
-					/*
-					else if ($num > 1) {
-			$this->__id = [];
-			$this->__nombre = [];
-			print_r($this->__id);
-			for ($i=0; $i < $num; $i++) { 
-				$this->__id[] = $query[$i]['id'];
-				$this->__nombres[] = $query[$i]['nombres'];
-			}
-			
-			print_r($this->__id);
-		}
-					*/
-					/*foreach($property as $name_property=>$value_final) {
-
-						// - $value = $value . '\'' . $name_property . '\' => \'' . $value_final . '\', ';
-						//$map = $map . '\'' . $name_property . '\' => \'' . $value_final . '\', ';
-					}*/
+					$find_array_top = $find_array_top . "\t\t\t" . '$this->__' . $name_value . " = [];\n";
+					$find_array_down = $find_array_down . "\t\t\t\t" . 'array_push($this->__' . $name_value . ', $query[$i][\'' . $name_value . '\']);' . "\n";
+					
 				}
 				$save = trim($save, " . \"', \" . ");
 				$save = $save . " . \"');\");" . "\n\t}\n";
 				$value = trim($value, ', ');
-				$find = $find . $find_one . "\t\t" . '}' . "\n";
+				$find = $find . $find_one . "\t\t}\n\t\t" . 'else if ($num > 1) {' . "\n" . $find_array_top . "\t\t\t" . 'for ($i=0; $i < $num; $i++) {' . "\n" . $find_array_down . "\t\t\t" . '}' . "\n\t\t" . '}' . "\n";
 				$find = $find . "\n\t}\n";
 			}
 		}
@@ -124,10 +98,7 @@ class Factory {
 		foreach ($db as $name_database => $property) {
 			echo 'database ' . $name_database . ' has been created' . "\n";
 			$file = Self::php_start() . ucwords($name_database) . "/* implements \Choco\ActiveRecord */{\n";
-
-
 			$file = $file . Self::php_database_construct();
-
 			if (isset($property['driver']) && isset($property['host']) && isset($property['user'])) {
 				$file = $file . "\tprotected ";
 				foreach ($property as $key => $value) {
@@ -139,32 +110,25 @@ class Factory {
 			$file = $file . '$conn = NULL, ';
 			$file = trim($file, ', ');
 			$file = $file . ";\n}";
-
 			chdir(__DIR__ . '/../../../../');
-
-
 			if (is_dir('app/'))
 				chdir('app/');
 			else {
 				mkdir('app/');
 				chdir('app/');
 			}
-
 			if (is_dir('models/'))
 				chdir('models/');
 			else {
 				mkdir('models/');
 				chdir('models/');
 			}
-
-
 			if (is_dir('db/'))
 				chdir('db/');
 			else {
 				mkdir('db');
 				chdir('db');
 			}
-
 			if (file_exists($name_database . '.php'))
 				unlink($name_database . '.php');
 			$file_read = fopen($name_database . '.php', 'c');
@@ -191,7 +155,7 @@ class Factory {
 		fwrite($file_read, $file);
 	}
 	public static function sql($config) {
-
+		Self::make_db($config);
 		// database
 		$path = $config . '/database/'; 
 		$filenames = scandir($path);
@@ -217,11 +181,8 @@ class Factory {
 				echo 'Connected to database ' . $name_database . "\n";
 			} catch(PDOException $e) {
 				echo $e->getMessage();
-			}
-			
-			
+			}	
 		}
-
 		// entities
 		$path = $config . '/entities/'; 
 		$filenames = scandir($path);
@@ -232,18 +193,11 @@ class Factory {
 		$insert = [];
 		$num_iterator = 0;
 		$fk = '';
-		
-		//$delete_db = '';
-		//$create_db = '';
 		$delete_group = '';
 		$sql_group = '';
-		
 		for ($i = 2; $i < $num; $i++) { 
 			$entities = Yaml::read($path . $filenames[$i]);
 			foreach ($entities as $name_database => $property) {
-				//$delete_db = 'DROP DATABASE IF NOT EXISTS' . $name_database . ";\n";
-				//$create_db = 'CREATE DATABASE ' . $name_database . ";\n";
-				
 				foreach ($property as $name_entities => $value) {
 					$sql = $sql . 'CREATE TABLE ' . $name_database . '.' . $name_entities . ' (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ';
 					$delete = $delete . 'DROP TABLE IF EXISTS '. $name_database . '.' . $name_entities . ";\n";
@@ -263,16 +217,11 @@ class Factory {
 							$sql = $sql . 'NOT NULL , ';
 						else
 							$sql = $sql . ' , ';
-
 						if (isset($v['fill'])) {
 							$insert[$num_iterator] = $v['fill'];
 							$num_iterator = $num_iterator + 1;
-						}
-
-						
+						}	
 					}
-
-
 					$sql = trim($sql, ', ');
 					$sql = $sql . ");\n";
 					// insert default values
@@ -300,13 +249,6 @@ class Factory {
 					}
 					$delete_group = $delete_group . $delete; 
 					$sql_group = $sql_group . $sql; 
-					/*try {
-						//var_dump($delete . $sql);
-						$db->query($delete . $sql);
-						echo $name_database . '.' . $name_entities . ' has been created' . "\n";
-					} catch(PDOException $e) {
-						echo "error: " . $e->getMessage();
-					}*/
 					$sql = '';
 					$delete = '';
 					$num_iterator = 0;
@@ -316,24 +258,69 @@ class Factory {
 			}
 		}
 		try {
-			/*chdir(__DIR__ . '/../../../');
-
-			if (file_exists('query.sql'))
-				unlink('query.sql');
-			$file_read = fopen('query.sql', 'c');
-			fwrite($file_read, $delete_group . $sql_group . $fk . $fill);
-			*/
-			//var_dump($delete_group . $sql_group . $fk . $fill);
 			$db->query($delete_group . $sql_group . $fk . $fill);
 			echo "finished\n";
 		} catch(PDOException $e) {
 			echo "error: " . $e->getMessage();
 		}
-		//$out = $delete_group . $sql_group;
-		//$out = $out . $fk . $fill;
-
-
-		
+	}
+	public static function drop($config) {
+		// database
+		$path = $config . '/database/'; 
+		$filenames = scandir($path);
+		$num = count($filenames);
+		for ($i = 2; $i < $num; $i++) { 
+			$db = Yaml::read($path . $filenames[$i]);
+			foreach ($db as $name_database => $property) {
+				$$name_database = $name_database;
+				if (isset($property['driver']) && isset($property['host']) && isset($property['user'])) {
+					foreach ($property as $key => $value) {
+						$$key = $value;
+					}
+				}
+			}
+			try {
+				$db = new PDO($driver . ':host=' . $host . ';', $user, $pass);
+				echo 'Connected to database ' . $name_database . "\n";
+			} catch(PDOException $e) {
+				echo $e->getMessage();
+			}	
+			try {
+				$db->query('DROP DATABASE IF EXISTS ' . $name_database . ";\n");
+				echo $name_database . " database was deleted\n";
+			} catch(PDOException $e) {
+				echo "error: " . $e->getMessage();
+			}
+		}
+	}
+	public static function make_db($config) {
+		// database
+		$path = $config . '/database/'; 
+		$filenames = scandir($path);
+		$num = count($filenames);
+		for ($i = 2; $i < $num; $i++) { 
+			$db = Yaml::read($path . $filenames[$i]);
+			foreach ($db as $name_database => $property) {
+				$$name_database = $name_database;
+				if (isset($property['driver']) && isset($property['host']) && isset($property['user'])) {
+					foreach ($property as $key => $value) {
+						$$key = $value;
+					}
+				}
+			}
+			try {
+				$db = new PDO($driver . ':host=' . $host . ';', $user, $pass);
+				echo 'Connected to database ' . $name_database . "\n";
+			} catch(PDOException $e) {
+				echo $e->getMessage();
+			}	
+			try {
+				$db->query('CREATE DATABASE IF NOT EXISTS ' . $name_database . " CHARACTER SET 'UTF8' COLLATE 'utf8_general_ci';\n");
+				echo $name_database . " database was created\n";
+			} catch(PDOException $e) {
+				echo "error: " . $e->getMessage();
+			}
+		}
 	}
 	public static function gen_sql($config) {
 		// database
@@ -371,16 +358,9 @@ class Factory {
 		$fk = '';
 		$delete_group = '';
 		$sql_group = '';
-		
-		//$delete_db = '';
-		//$create_db = '';
-		
 		for ($i = 2; $i < $num; $i++) { 
 			$entities = Yaml::read($path . $filenames[$i]);
-			foreach ($entities as $name_database => $property) {
-				//$delete_db = 'DROP DATABASE IF NOT EXISTS' . $name_database . ";\n";
-				//$create_db = 'CREATE DATABASE ' . $name_database . ";\n";
-				
+			foreach ($entities as $name_database => $property) {				
 				foreach ($property as $name_entities => $value) {
 					$sql = $sql . 'CREATE TABLE ' . $name_database . '.' . $name_entities . ' (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ';
 					$delete = $delete . 'DROP TABLE IF EXISTS '. $name_database . '.' . $name_entities . ";\n";
