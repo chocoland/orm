@@ -22,14 +22,18 @@ class Factory {
 			foreach($entities as $name_entities=>$values) {
 				echo 'entitie ' . $name_entities . ' has been created from ' . $db . "\n";
 				$var = $var . '$name = \'' . $name_entities . '\', $__id = \'\', $__lenght = NULL, $__select = \'*\', ';
-				$start = Self::php_start() . ucwords($name_entities) . ' extends ' . $db  . " {\n";
+				$start = Self::php_start() . ucwords($name_entities) . ' extends ' . ucwords($db)  . " {\n";
 				$save = $save . "\n\tpublic function save() {\n";
 				$save = $save . "\t\t" . '$this->query(\'INSERT INTO ' . $db . '.' . $name_entities . ' values(null, \' . ' . "\n\t\t";
 				$delete = $delete . "\n\tpublic function delete" . '($where)' . " {\n";
 				$delete = $delete . "\t\t" . '$this->query("DELETE FROM ' . $db . '.' . $name_entities . ' WHERE $where;");';
 				$delete = $delete . "\n\t}\n";
-				$find = $find . "\n\tpublic function find" . '($where)' . " {\n";
-				$find = $find . "\t\t" . '$query = $this->query("SELECT $this->__select FROM ' . $db . '.' . $name_entities . ' WHERE $where;");' . "\n";
+				$find = $find . "\n\tpublic function find" . '($where = NULL)' . " {\n";
+				$find = $find . "\t\t" . 'if (isset($where))' . "\n"; 
+				$find = $find . "\t\t\t" . '$query = $this->query("SELECT $this->__select FROM ' . $db . '.' . $name_entities . ' WHERE $where;");' . "\n";
+				$find = $find . "\t\t" . 'else' . "\n"; 
+				$find = $find . "\t\t\t" . '$query = $this->query("SELECT $this->__select FROM ' . $db . '.' . $name_entities . ";\");\n";
+
 				$find = $find . "\t\t" . '$query = $query->fetchAll(PDO::FETCH_ASSOC);' . "\n";
 				$find = $find . "\t\t" . '$num = count($query);' . "\n";
 				$find = $find . "\t\t" . 'if ($num == 1) {' . "\n";
@@ -39,6 +43,8 @@ class Factory {
 				$function = $function . "\t}\n";
 
 				$find_one = $find_one . "\t\t\t" . '$this->__id = $query[\'id\'] ' . ";\n";
+				$find_array_top = $find_array_top . "\t\t\t" . '$this->__id' . " = [];\n";
+				$find_array_down = $find_array_down . "\t\t\t\t" . 'array_push($this->__id' . ', $query[$i][\'id\']);' . "\n";
 				foreach ($values as $name_value => $property) {
 					$num_values = $num_values + 1;
 					$var = $var . '$__' . $name_value . " = NULL, ";
@@ -60,7 +66,7 @@ class Factory {
 				$save = trim($save, " . \"', \" . ");
 				$save = $save . " . \"');\");" . "\n\t}\n";
 				$value = trim($value, ', ');
-				$find = $find . $find_one . "\t\t}\n\t\t" . 'else if ($num > 1) {' . "\n" . $find_array_top . "\t\t\t" . 'for ($i=0; $i < $num; $i++) {' . "\n" . $find_array_down . "\t\t\t" . '}' . "\n\t\t" . '$this->__lenght = $num;' ."\n\t\t" . '}' . "\n";
+				$find = $find . $find_one . "\t\t}\n\t\t" . 'else if ($num > 1) {' . "\n" . $find_array_top . "\t\t\t" . 'for ($i=0; $i < $num; $i++) {' . "\n" . $find_array_down . "\t\t\t" . '}' . "\n\t\t" . '}' . "\n\t\t" . '$this->__lenght = $num;';
 				$find = $find . "\n\t}\n";
 			}
 		}
