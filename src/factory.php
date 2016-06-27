@@ -17,6 +17,9 @@ class Factory {
 		$find_array_top = '';
 		$find_array_down = '';
 		$name_entities = '';
+		$array = '';
+		$array_top = '';
+		$array_down = '';
 		foreach($model as $db=>$entities) {
 			$var = $var . '$db = \'' . $db . '\', ';
 			foreach($entities as $name_entities=>$values) {
@@ -42,6 +45,36 @@ class Factory {
 				$function = $function . "\t\t" . 'return $this->__id' . ";\n";
 				$function = $function . "\t}\n";
 
+/*
+public function array() {
+	$array = [];
+	if ($this->__lenght == 1) {
+		$array[0] = [
+			"texto" => $this->__texto
+		];
+	} 
+	else if ($this->__lenght >= 1) {
+		for ($i=0; $i < $this->__lenght; $i++) { 
+			$array[$i] = [
+				"texto" => $this->__texto[$i]
+			];
+		}
+	}
+	return $array;
+}
+*/
+				$array_top = "\tpublic function array() {\n";
+				$array_top = $array_top . "\t\t" . '$array = [];' . "\n";
+				$array_top = $array_top . "\t\t" . 'if ($this->__lenght == 1) {' . "\n";
+				$array_top = $array_top . "\t\t\t" . '$array[0] = [' . "\n";
+				$array_top = $array_top . "\t\t\t\t" . '\'id\' => $this->__id,' . "\n";
+				$array_down = "\t\t\t" . '];' . "\n";
+				$array_down = $array_down . "\t\t" . '}' . "\n";
+				$array_down = $array_down . "\t\t" . 'else if ($this->__lenght >= 1) {' . "\n";
+				$array_down = $array_down . "\t\t\t" . 'for ($i=0; $i < $this->__lenght; $i++) {' . "\n";
+				$array_down = $array_down . "\t\t\t\t" . '$array[$i] = [' . "\n";
+				$array_down = $array_down . "\t\t\t\t\t" . '\'id\' => $this->__id[$i],' . "\n";
+
 				$find_one = $find_one . "\t\t\t" . '$this->__id = $query[\'id\'] ' . ";\n";
 				$find_array_top = $find_array_top . "\t\t\t" . '$this->__id' . " = [];\n";
 				$find_array_down = $find_array_down . "\t\t\t\t" . 'array_push($this->__id' . ', $query[$i][\'id\']);' . "\n";
@@ -61,8 +94,22 @@ class Factory {
 					$find_one = $find_one . "\t\t\t" . '$this->__' . $name_value . ' = $query[\'' . $name_value . "'];\n";
 					$find_array_top = $find_array_top . "\t\t\t" . '$this->__' . $name_value . " = [];\n";
 					$find_array_down = $find_array_down . "\t\t\t\t" . 'array_push($this->__' . $name_value . ', $query[$i][\'' . $name_value . '\']);' . "\n";
+
+					$array_top = $array_top . "\t\t\t\t" . '\'' . $name_value . '\' => $this->__' . $name_value . ',' . "\n";
+					$array_down = $array_down . "\t\t\t\t\t" . '\'' . $name_value . '\' => $this->__' . $name_value . '[$i],' . "\n";
+/*
+					$array_top = $array_top . "\t\t\t" . '$this->__' . $name_value . " = [];\n";
+					$array_down = $array_down . "\t\t\t\t" . 'array_push($this->__' . $name_value . ', $query[$i][\'' . $name_value . '\']);' . "\n";*/
 					
 				}
+				$array_top = trim($array_top, ',' . "\n") . "\n";
+				$array_down = trim($array_down, ',' . "\n") . "\n";
+
+				$array_down = $array_down . "\t\t\t\t" . '];' . "\n";
+				$array_down = $array_down . "\t\t\t" . '}' . "\n";
+				$array_down = $array_down . "\t\t" . '}' . "\n";
+				$array_down = $array_down . "\t\t" . 'return $array;' . "\n";
+				$array = $array_top . $array_down . "\t}\n";
 				$save = trim($save, " . \"', \" . ");
 				$save = $save . " . \"');\");" . "\n\t}\n";
 				$value = trim($value, ', ');
@@ -77,7 +124,8 @@ class Factory {
 		$var = trim($var, '. ');
 		//$var = $var . '], $num_entities = ' . $num_values . ';';
 		$var = $var . ' $num_entities = ' . $num_values . ';';
-		$activerecord = $save . $delete . /*$select . */$find . $lenght;
+		
+		$activerecord = $save . $delete . /*$select . */$find . $lenght . $array;
 		// file_exists()
 		chdir(__DIR__ . '/../../../../');
 		if (is_dir('app/'))
