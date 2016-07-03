@@ -231,7 +231,7 @@ public function array() {
 					foreach ($property as $key => $value) {
 						$$key = $value;
 					}
-				}
+				}	
 			}
 			try {
 				$db = new PDO($driver . ':host=' . $host . ';', $user, $pass);
@@ -288,7 +288,6 @@ public function array() {
 					}
 					else
 						$num_iterator_for = 0;
-
 					if ($insert != [] && $num_iterator_for > 0) {
 						$num_iterator_for = count($insert[0]);
 						$num_keys = count($insert);
@@ -296,14 +295,15 @@ public function array() {
 						for ($j=0; $j < $num_iterator_for; $j++) { 
 							$fill = $fill . ' (null, ';
 							for ($k=0; $k < $num_keys; $k++) { 
-								$fill = $fill . '\'' . $insert[$k][$j] . '\'), ( ';
+								$fill = $fill . '\'' . $insert[$k][$j] . '\', ';
 							}
-							$fill = trim($fill, ', (');
-							$fill = $fill . ",";
+							$fill = trim($fill, ', ');
+							$fill = $fill . "),";
 						}
 						$fill = trim($fill, ', (');
 						$fill = $fill . ";\n";
 					}
+					
 					$delete_group = $delete_group . $delete; 
 					$sql_group = $sql_group . $sql; 
 					$sql = '';
@@ -464,10 +464,10 @@ public function array() {
 						for ($j=0; $j < $num_iterator_for; $j++) { 
 							$fill = $fill . ' (null, ';
 							for ($k=0; $k < $num_keys; $k++) { 
-								$fill = $fill . '\'' . $insert[$k][$j] . '\'), ( ';
+								$fill = $fill . '\'' . $insert[$k][$j] . '\', ';
 							}
-							$fill = trim($fill, ', (');
-							$fill = $fill . ",";
+							$fill = trim($fill, ', ');
+							$fill = $fill . "),";
 						}
 						$fill = trim($fill, ', (');
 						$fill = $fill . ";\n";
