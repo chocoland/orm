@@ -369,7 +369,7 @@ class Factory {
 		}
 	}
 	public static function gen_sql($config) {
-		// database
+		
 		$path = $config . '/database/'; 
 		$filenames = scandir($path);
 		$num = count($filenames);
@@ -406,7 +406,7 @@ class Factory {
 		$sql_group = '';
 		for ($i = 2; $i < $num; $i++) { 
 			$entities = Yaml::read($path . $filenames[$i]);
-			foreach ($entities as $name_database => $property) {				
+			foreach ($entities as $name_database => $property) {	
 				foreach ($property as $name_entities => $value) {
 					$sql = $sql . 'CREATE TABLE ' . $name_database . '.' . $name_entities . ' (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ';
 					$delete = $delete . 'DROP TABLE IF EXISTS '. $name_database . '.' . $name_entities . ";\n";
@@ -473,16 +473,34 @@ class Factory {
 				}
 			}
 		}
-		$out = $out . $delete_group . $sql_group;
+		$out = $out . Self::gen_make_db($config) . $delete_group . $sql_group;
 		$out = $out . $fk . $fill;
 
-
 		chdir(__DIR__ . '/../../../../');
-		echo $out;
+		
 		if (file_exists('query.sql'))
 			unlink('query.sql');
+		if (php_uname('s') == 'Windows NT')
+			echo 'database has been save in ' . getcwd() . '\query.sql';
+		else
+			echo 'database has been save in ' . getcwd() . '/query.sql';
 		$file_read = fopen('query.sql', 'c');
 		fwrite($file_read, $out);
+	}
+	public static function gen_make_db($config) {
+		// database
+		$path = $config . '/database/'; 
+		$filenames = scandir($path);
+		$num = count($filenames);
+		$res = '';
+		for ($i = 2; $i < $num; $i++) { 
+			$db = Yaml::read($path . $filenames[$i]);
+			foreach ($db as $name_database => $property) {
+				$$name_database = $name_database;
+			}
+			$res = $res . 'CREATE DATABASE IF NOT EXISTS ' . $name_database . " CHARACTER SET 'UTF8' COLLATE 'utf8_general_ci';\n";
+		}
+		return $res;
 	}
 	private static function php_start() {
 		return 
