@@ -5,7 +5,7 @@ Choco ORM is a small and simple ORM for php
 
 * [How to install](#how-to-install)
 * [How to use ](#how-to-use)
-* [Simple explication](#how-is-time-of-make-a-simple-explication)
+* [A simple explication](#a-simple-explication)
 * [Generate models and entities](#generate-models-and-entities)
 * [Import Choco ORM](#import-choco-orm)
 * [Basic CRUD](#basic-crud)
@@ -53,7 +53,7 @@ How to use
 
 In your project folder, create a folder named `config`, into config create others folders called `database` and `entities`
 
-Now is time of make a simple explication
+A simple explication
 ---
 
 * Database structure:
